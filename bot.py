@@ -6,8 +6,14 @@ from telebot import types
 import simple
 import api
 import check_valid
+import datetime
+from datetime import timedelta
 bot = telebot.TeleBot(config.TOKEN)
 
+access_days = [i for i in range(16)]
+today = datetime.datetime.now()
+limit_days = timedelta(days=15)
+last_data = today + limit_days
 @bot.message_handler(commands=['start', 'help'])
 def welcome(message):
     sti = open('static/sticker.webp', 'rb')
@@ -20,21 +26,25 @@ def welcome(message):
     markup.add(item1, item2)
 
     bot.send_message(message.chat.id,
-                     "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, введите дату на ближайшие 15 дней.".format(
-                         message.from_user, bot.get_me()),
+                     "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, Узнай погоду в г.Ярославль"
+                     " Введите дату в формате <em>мм.дд</em> \nДоступные даты прогноза с <ins>{2}</ins> по <ins>{3}</ins> ".format(
+                         message.from_user, bot.get_me(), today.date(), last_data.date()),
                      parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(content_types = ['text'])
 def main(message):
     if message.chat.type == 'private':
         if not check_valid.check_data(message.text):
-            bot.send_message(message.chat.id,'Введите кооретную дату')
+            bot.send_message(message.chat.id,'Пожалуйста, введите дату в цифравом формате <em>мм.дд</em> \nНапоминаем доступные даты с {} по {}'.format(today.date(), last_data.date()),
+                             parse_mode='html')
             return None
-
-        if simple.correct_date(message.text):
-            day = simple.correct_date(message.text)
-            bot.send_message(message.chat.id, 'В городе {0[0]} градусов\nДата прогноза - {0[1]} '.format(api.send_weather(day)))
-
+        check_date = simple.correct_date(message.text)
+        if check_date in access_days:
+            #day = simple.correct_date(message.text)
+            bot.send_message(message.chat.id, 'В городе {0[0]} градусов\nДата прогноза - {0[1]} '.format(api.send_weather(check_date)))
+        elif check_date not in access_days:
+            bot.send_message(message.chat.id, 'К сожалению Я могу показать погоду только в период\n'
+                                              'c {} по {}'.format(today.date(), last_data.date()))
         elif message.text == 'weather tomorrow':
             markup = types.InlineKeyboardMarkup(row_width=2)
             item1 = types.InlineKeyboardButton("morning", callback_data='good')

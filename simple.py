@@ -1,17 +1,16 @@
 import datetime
 import api
-
+NOW_DAY = 1
 today = datetime.date.today()
 
 def correct_date(date):
-
     i = [int(i) for i in date.split('.')]
     if (datetime.date(year=2020, month=i[0], day=i[1]) <= today + datetime.timedelta(days=15)) & (today <= datetime.date(year=2020, month=i[0], day=i[1])):
         select_day = datetime.date(year=2020, month=i[0], day=i[1])
-        return what_days(select_day)
 
+        return what_days(select_day)
     else:
-        return False
+        return 50
 
 def what_days(select_day):
     day = select_day - today
