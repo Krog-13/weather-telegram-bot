@@ -1,6 +1,6 @@
 import datetime
 import api
-NOW_DAY = 1
+border_day = 20
 today = datetime.date.today()
 
 def correct_date(date):
@@ -10,7 +10,7 @@ def correct_date(date):
 
         return what_days(select_day)
     else:
-        return 50
+        return border_day
 
 def what_days(select_day):
     day = select_day - today

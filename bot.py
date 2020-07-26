@@ -7,12 +7,13 @@ import check_valid
 import datetime
 from datetime import timedelta
 
-
-bot = telebot.TeleBot(config.TOKEN)
 degree_sign = chr(176)
+DAY_WEATHER_FORECAST = 15
+bot = telebot.TeleBot(config.TOKEN)
+
 access_days = [i for i in range(16)]
 today = datetime.datetime.now()
-limit_days = timedelta(days=15)
+limit_days = timedelta(days=DAY_WEATHER_FORECAST)
 last_data = today + limit_days
 @bot.message_handler(commands=['start', 'help'])
 def welcome(message):
