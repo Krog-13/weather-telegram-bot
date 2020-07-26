@@ -1,15 +1,15 @@
 import telebot
 import config
-import random
-import datetime
 from telebot import types
 import simple
 import api
 import check_valid
 import datetime
 from datetime import timedelta
-bot = telebot.TeleBot(config.TOKEN)
 
+
+bot = telebot.TeleBot(config.TOKEN)
+degree_sign = chr(176)
 access_days = [i for i in range(16)]
 today = datetime.datetime.now()
 limit_days = timedelta(days=15)
@@ -27,7 +27,7 @@ def welcome(message):
 
     bot.send_message(message.chat.id,
                      "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, Узнай погоду в г.Ярославль"
-                     " Введите дату в формате <em>мм.дд</em> \nДоступные даты прогноза с <ins>{2}</ins> по <ins>{3}</ins> ".format(
+                     " Введите дату в цифровом формате <em>мм.дд</em> \nДоступные даты прогноза с <ins>{2}</ins> по <ins>{3}</ins> ".format(
                          message.from_user, bot.get_me(), today.date(), last_data.date()),
                      parse_mode='html', reply_markup=markup)
 
@@ -40,8 +40,12 @@ def main(message):
             return None
         check_date = simple.correct_date(message.text)
         if check_date in access_days:
-            #day = simple.correct_date(message.text)
-            bot.send_message(message.chat.id, 'В городе {0[0]} градусов\nДата прогноза - {0[1]} '.format(api.send_weather(check_date)))
+            bot.send_message(message.chat.id, 'Метеоданные за <ins>{0[3]}</ins>:\n'
+                                              ' <b>температура</b> - {0[0]}{1}C\n'
+                                              ' <b>вероятность осадков</b> - {0[1]}%\n'
+                                              ' <b>давление</b> - {0[4]} мм рт.ст.\n'
+                                              ' <b>влажность</b> - {0[2]}%'
+                             .format(api.send_weather(check_date), degree_sign), parse_mode='html')
         elif check_date not in access_days:
             bot.send_message(message.chat.id, 'К сожалению Я могу показать погоду только в период\n'
                                               'c {} по {}'.format(today.date(), last_data.date()))
