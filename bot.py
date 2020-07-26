@@ -5,9 +5,11 @@ import simple
 import api
 import check_valid
 import datetime
+import thisday
 from datetime import timedelta
 
 degree_sign = chr(176)
+DAY_NOW = 0
 DAY_WEATHER_FORECAST = 15
 bot = telebot.TeleBot(config.TOKEN)
 
@@ -23,8 +25,8 @@ def welcome(message):
     #keyboard
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton("weather today")
-    item2 = types.KeyboardButton("weather tomorrow")
-    markup.add(item1, item2)
+#    item2 = types.KeyboardButton("weather tomorrow")
+    markup.add(item1,)
 
     bot.send_message(message.chat.id,
                      "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, Узнай погоду в г.Ярославль"
@@ -35,10 +37,19 @@ def welcome(message):
 @bot.message_handler(content_types = ['text'])
 def main(message):
     if message.chat.type == 'private':
+        if message.text == 'weather today':
+            markup = types.InlineKeyboardMarkup(row_width=2)
+            item1 = types.InlineKeyboardButton("t {}C".format(degree_sign), callback_data='temp')
+            item2 = types.InlineKeyboardButton('ALL', callback_data='all')
+            markup.add(item1, item2)
+            bot.send_message(message.chat.id, 'Что Вас интересует?', reply_markup=markup)
+            return None
+
         if not check_valid.check_data(message.text):
-            bot.send_message(message.chat.id,'Пожалуйста, введите дату в цифравом формате <em>мм.дд</em> \nНапоминаем доступные даты с {} по {}'.format(today.date(), last_data.date()),
+            bot.send_message(message.chat.id,'Пожалуйста, введите дату в цифравом формате <b>ММ.ДД</b> \nНапоминаем доступные даты с {} по {}'.format(today.date(), last_data.date()),
                              parse_mode='html')
             return None
+
         check_date = simple.correct_date(message.text)
         if check_date in access_days:
             bot.send_message(message.chat.id, 'Метеоданные за <ins>{0[3]}</ins>:\n'
@@ -47,15 +58,10 @@ def main(message):
                                               ' <b>давление</b> - {0[4]} мм рт.ст.\n'
                                               ' <b>влажность</b> - {0[2]}%'
                              .format(api.send_weather(check_date), degree_sign), parse_mode='html')
+
         elif check_date not in access_days:
             bot.send_message(message.chat.id, 'К сожалению Я могу показать погоду только в период\n'
                                               'c {} по {}'.format(today.date(), last_data.date()))
-        elif message.text == 'weather tomorrow':
-            markup = types.InlineKeyboardMarkup(row_width=2)
-            item1 = types.InlineKeyboardButton("morning", callback_data='good')
-            item2 = types.InlineKeyboardButton('night', callback_data='BAD')
-            markup.add(item1, item2)
-            bot.send_message(message.chat.id, 'select half a day', reply_markup=markup)
         else:
             bot.send_message(message.chat.id, 'I do not understand')
 
@@ -65,18 +71,23 @@ def main(message):
 def callback_inline(call):
     try:
         if call.message:
-            if call.data == 'good':
-                bot.send_message(call.message.chat.id, '24 degree')
-            elif call.data == 'BAD':
-                bot.send_message(call.message.chat.id, '18 degree')
+            if call.data == 'temp':
+                bot.send_message(call.message.chat.id, 'Температура воздуха {0[0]}{1}C'.format(api.send_weather(DAY_NOW),degree_sign ), parse_mode='html')
+            elif call.data == 'all':
+                bot.send_message(call.message.chat.id, '<ins>Метеоданные</ins>:\n'
+                                              ' <b>температура</b> - {0[0]}{1}C\n'
+                                              ' <b>вероятность осадков</b> - {0[1]}%\n'
+                                              ' <b>давление</b> - {0[4]} мм рт.ст.\n'
+                                              ' <b>влажность</b> - {0[2]}%'
+                             .format(api.send_weather(DAY_NOW), degree_sign), parse_mode='html')
 
             # remove inline buttons
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="***",
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Сегодня {}'.format(thisday.day_of_week),
                                   reply_markup=None)
 
             # show alert
             bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
-                                      text="Погода в городе")
+                                      text="Погода в Ярославле")
 
     except Exception as e:
         print(repr(e))

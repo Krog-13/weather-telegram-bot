@@ -13,6 +13,8 @@ def check_data(date):
             return False
     except ValueError:
         return False
+    except IndexError:
+        return False
     else:
         return True
 
