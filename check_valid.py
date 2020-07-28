@@ -1,7 +1,9 @@
 MAX_MONTH_YEAR = 13
 MAX_DAYS_MONTH = 32
 LEN_FORMAT_MM_DD = 2
-
+'''
+Valid checking calendar days and months
+'''
 def check_data(date):
     days = [i for i in range(1,MAX_DAYS_MONTH)]
     month = [i for i in range(1,MAX_MONTH_YEAR)]
@@ -17,6 +19,3 @@ def check_data(date):
         return False
     else:
         return True
-
-
-

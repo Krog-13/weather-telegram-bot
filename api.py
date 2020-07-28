@@ -33,5 +33,3 @@ def send_weather(day):
     pres = float(pres)*CONVERT_BAR
     weather_data.append(int(pres))
     return weather_data
-
-

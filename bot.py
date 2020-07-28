@@ -7,16 +7,23 @@ import check_valid
 import datetime
 import thisday
 from datetime import timedelta
-
+"""
+Telebot shows weather in the Yaraslavl of the city 
+16 days weather forecast
+username is Telebot @Gashanbot
+"""
+#sign of "gradus"
 degree_sign = chr(176)
 DAY_NOW = 0
 DAY_WEATHER_FORECAST = 15
 bot = telebot.TeleBot(config.TOKEN)
 
+#weather forecast
 access_days = [i for i in range(16)]
 today = datetime.datetime.now()
 limit_days = timedelta(days=DAY_WEATHER_FORECAST)
 last_data = today + limit_days
+
 @bot.message_handler(commands=['start', 'help'])
 def welcome(message):
     sti = open('static/sticker.webp', 'rb')
@@ -45,12 +52,12 @@ def main(message):
             bot.send_message(message.chat.id, 'Что Вас интересует?', reply_markup=markup)
             return None
 
-        if not check_valid.check_data(message.text):
+        if not check_valid.check_data(message.text): #check valid foramt 00.00 only int
             bot.send_message(message.chat.id,'Пожалуйста, введите дату в цифравом формате <b>ММ.ДД</b> \nНапоминаем доступные даты с {} по {}'.format(today.date(), last_data.date()),
                              parse_mode='html')
             return None
 
-        check_date = simple.correct_date(message.text)
+        check_date = simple.correct_date(message.text) # checks the specified period
         if check_date in access_days:
             bot.send_message(message.chat.id, 'Метеоданные за <ins>{0[3]}</ins>:\n'
                                               ' <b>температура</b> - {0[0]}{1}C\n'
@@ -94,4 +101,3 @@ def callback_inline(call):
 
 
 bot.polling(none_stop=True)
-
