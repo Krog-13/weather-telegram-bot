@@ -16,7 +16,7 @@ username is Telebot @Gashanbot
 degree_sign = chr(176)
 DAY_NOW = 0
 DAY_WEATHER_FORECAST = 15
-bot = telebot.TeleBot(config.TOKEN)
+bot = telebot.TeleBot('Enter your bot TOKEN')
 
 #weather forecast
 access_days = [i for i in range(16)]
