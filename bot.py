@@ -1,5 +1,4 @@
 import telebot
-import config
 from telebot import types
 import simple
 import api
