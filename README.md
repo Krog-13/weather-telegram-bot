@@ -1,6 +1,6 @@
 ## Weather TeleBot
 This bot shows the weather in the city of Yaroslavl.
-
+Хай, че из вк удалился? Напиши в телеграме https://t.me/maxim_lavrinenko
 Weather data: 
 - Average temperature
 - Probability of precipitation
